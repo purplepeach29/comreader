@@ -1,97 +1,77 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# ComReader
 
-# Getting Started
+A comic reader written in bare React Native 0.87 (no Expo) with TypeScript. It is the frontend only and talks to the companion backend.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## What is implemented
 
-## Step 1: Start Metro
+| Component | Weight | Status |
+|---|---|---|
+| Story feed with infinite scroll → chapter list → vertical reader, for type A and type B comics | 30% | Done |
+| Double-page spread: header toggle, swipe or edge-tap to move sideways, switches automatically on rotation | 30% | Done |
+| Pinch zoom applied to the whole reader, kept across chapters and after the app is killed | 40% | Done |
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+Zoom runs from 1× to 3×. Scrolling at 3× measured 120 FPS on a Samsung Galaxy A36 5G in a release build; the method and full numbers are in [docs/DECISIONS.md](docs/DECISIONS.md).
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Where to find each deliverable
+
+| The brief asks for | File |
+|---|---|
+| Architecture write-up | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
+| Edge cases handled and not handled | [docs/EDGE_CASES.md](docs/EDGE_CASES.md) |
+| Three decisions of A over B, and what would flip each | [docs/DECISIONS.md](docs/DECISIONS.md) |
+| One thing tried that did not work | [docs/DECISIONS.md](docs/DECISIONS.md) |
+| Scroll FPS at maximum zoom, with device and method | [docs/DECISIONS.md](docs/DECISIONS.md), script in [scripts/scroll-fps.py](scripts/scroll-fps.py) |
+
+## Running it
+
+You need Node 22.11 or later, Docker, and the usual [React Native Android setup](https://reactnative.dev/docs/set-up-your-environment) with a phone or emulator visible to `adb`.
+
+1. Start the backend from the [companion repo](https://github.com/titin-fanon/app-assignment-companion):
+
+   ```sh
+   docker compose up -d
+   ```
+
+2. Install dependencies in this repo:
+
+   ```sh
+   npm install
+   ```
+
+3. Forward the backend's port to the device. Rerun this whenever the device reconnects.
+
+   ```sh
+   npm run android:ports
+   ```
+
+4. Start the bundler in one terminal:
+
+   ```sh
+   npm start
+   ```
+
+5. Build and install the app from a second terminal:
+
+   ```sh
+   npm run android
+   ```
+
+The app calls `http://localhost:3001`, which step 3 routes to the host machine. To run over Wi-Fi with no USB cable, set `LAN_HOST` in [src/config.ts](src/config.ts) to the host's LAN address instead.
+
+## Checks
 
 ```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+npx tsc --noEmit
+npm run lint
+npm test
 ```
 
-## Step 2: Build and run your app
+## Code layout
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+- `App.tsx`: providers and the navigation stack (Feed → Chapters → Reader).
+- `src/api/`: the fetch wrapper, React Query hooks and response types.
+- `src/screens/`: one file per screen.
+- `src/reader/`: the vertical and spread readers, the zoom hook, zoom persistence and image prefetching.
+- `__tests__/`: Jest tests for the API client, spread pairing and the zoom store.
 
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+[Apk link](https://drive.google.com/file/d/16WD-ZYwLWTLwO4BAjcrsw7A7LRTf0gr0/view?usp=share_link)
